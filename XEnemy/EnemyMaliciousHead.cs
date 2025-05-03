@@ -26,6 +26,9 @@ namespace MaliciousHeads.XEnemy
         internal float stateTimer;
 
         [Space]
+        public Rigidbody rigidbody;
+
+        [Space]
         public Enemy enemy;
 
         public PhysGrabObject physGrabObject;
@@ -387,6 +390,9 @@ namespace MaliciousHeads.XEnemy
                 stateImpulse = false;
                 stateTimer = 1f;
 
+                ApplyVelocity();
+                ApplyAngularVelocity();
+
                 seenCooldownTimer = seenCooldownTime;
                 localSeen = false;
                 localSeenEffect = false;
@@ -471,6 +477,22 @@ namespace MaliciousHeads.XEnemy
                     MaliciousHeads.Logger.LogError(e.ToString());
                 }
             }
+        }
+
+        private void ApplyVelocity()
+        {
+            float xVelocity = UnityEngine.Random.Range(-3f, 3f);
+            float yVelocity = UnityEngine.Random.Range(5f, 10f);
+            float zVelocity = UnityEngine.Random.Range(-3f, 3f);
+            rigidbody.velocity = new Vector3(xVelocity, yVelocity, zVelocity);
+        }
+
+        private void ApplyAngularVelocity()
+        {
+            float xVelocity = UnityEngine.Random.Range(-2f, 2f);
+            float yVelocity = UnityEngine.Random.Range(-2f, 2f);
+            float zVelocity = UnityEngine.Random.Range(-2f, 2f);
+            rigidbody.angularVelocity = new Vector3(xVelocity, yVelocity, zVelocity);
         }
     }
 }
