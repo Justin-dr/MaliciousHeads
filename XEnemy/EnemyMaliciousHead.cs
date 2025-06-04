@@ -39,7 +39,7 @@ namespace MaliciousHeads.XEnemy
         public MapCustom mapCustom;
 
         [Space]
-        public float holdThreshold = 2f;
+        public float holdThreshold;
 
         private float _holdStartTime;
 
@@ -100,6 +100,7 @@ namespace MaliciousHeads.XEnemy
 
         private void Awake()
         {
+            holdThreshold = Settings.HoldThreshold.Value;
             photonView = GetComponent<PhotonView>();
             if (!Application.isEditor || (SemiFunc.IsMultiplayer() && !GameManager.instance.localTest))
             {
