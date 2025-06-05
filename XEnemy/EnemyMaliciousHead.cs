@@ -265,9 +265,9 @@ namespace MaliciousHeads.XEnemy
                 string randomPlayerSteamID = GetRandomPlayerSteamID();
                 if (GameManager.Multiplayer())
                 {
-                    photonView.RPC("SetupRPC", RpcTarget.OthersBuffered, randomPlayerSteamID);
+                    photonView.RPC("SetupRPC", RpcTarget.OthersBuffered, randomPlayerSteamID, Settings.HoldThreshold.Value);
                 }
-                SetupDone(randomPlayerSteamID);
+                SetupDone(randomPlayerSteamID, holdThreshold);
                 if (SemiFunc.RunIsArena())
                 {
                     physGrabObject.impactDetector.destroyDisable = false;
@@ -295,13 +295,13 @@ namespace MaliciousHeads.XEnemy
         }
 
         [PunRPC]
-        public void SetupRPC(string steamID)
+        public void SetupRPC(string steamID, float holdThreshold)
         {
             MaliciousHeads.Logger.LogDebug($"[RPC] SetupRPC called with parameter steamID: {steamID}");
-            StartCoroutine(Wrap(SetupClient(steamID)));
+            StartCoroutine(Wrap(SetupClient(steamID, holdThreshold)));
         }
 
-        private IEnumerator SetupClient(string steamID)
+        private IEnumerator SetupClient(string steamID, float holdThreshold)
         {
             while (!physGrabObject)
             {
@@ -319,7 +319,7 @@ namespace MaliciousHeads.XEnemy
                 yield return new WaitForSeconds(0.1f);
             }
             MaliciousHeads.Logger.LogDebug($"SetupClient finished: {steamID}");
-            SetupDone(steamID);
+            SetupDone(steamID, holdThreshold);
         }
 
         private string GetRandomPlayerSteamID()
@@ -328,8 +328,9 @@ namespace MaliciousHeads.XEnemy
             return SemiFunc.PlayerGetSteamID(player);
         }
 
-        private void SetupDone(string steamID)
+        private void SetupDone(string steamID, float holdThreshold)
         {
+            this.holdThreshold = holdThreshold;
             if (steamID == null)
             {
                 Debug.LogError("Failed to set Malicious Head color");
