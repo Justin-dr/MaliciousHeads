@@ -12,7 +12,7 @@ namespace MaliciousHeads.Util
             {
                 foreach (var parent in parents)
                 {
-                    parent.DespawnedTimer = 0;
+                    parent.DespawnedTimer = 1;
                 }
             }
 

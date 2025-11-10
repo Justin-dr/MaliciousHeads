@@ -61,6 +61,10 @@ namespace MaliciousHeads.XEnemy
 
         private bool eyeFlash;
 
+        private bool eyeFlashOnPickup;
+
+        private bool eyeFlashOnDetonate;
+
         private float eyeFlashLerp;
 
         [Space]
@@ -101,6 +105,8 @@ namespace MaliciousHeads.XEnemy
         private void Awake()
         {
             holdThreshold = Settings.HoldThreshold.Value;
+            eyeFlashOnPickup = Settings.FlashEyesOnPickUp.Value;
+            eyeFlashOnDetonate = Settings.FlashEyesOnDetonate.Value;
             photonView = GetComponent<PhotonView>();
             if (!Application.isEditor || (SemiFunc.IsMultiplayer() && !GameManager.instance.localTest))
             {
@@ -153,7 +159,7 @@ namespace MaliciousHeads.XEnemy
                 }
                 else
                 {
-                    Vector3 localCameraPosition = PlayerController.instance.playerAvatarScript.localCameraPosition;
+                    Vector3 localCameraPosition = PlayerController.instance.playerAvatarScript.localCamera.transform.position;
                     float num = Vector3.Distance(base.transform.position, localCameraPosition);
                     if (num <= 10f && SemiFunc.OnScreen(base.transform.position, -0.15f, -0.15f))
                     {
@@ -232,14 +238,21 @@ namespace MaliciousHeads.XEnemy
                 {
                     _holdStartTime = Time.time;
                     _hasSelfDestructed = false;
-                    FlashEye();
+                    if (eyeFlashOnPickup)
+                    {
+                        FlashEye();
+                    }
+                    
                 }
 
                 float heldDuration = Time.time - _holdStartTime;
 
                 if (!_hasSelfDestructed && heldDuration >= holdThreshold)
                 {
-                    FlashEye();
+                    if (eyeFlashOnDetonate)
+                    {
+                        FlashEye();
+                    }
                     ChatManager.instance.PossessSelfDestruction();
                     _hasSelfDestructed = true;
                 }
@@ -265,9 +278,9 @@ namespace MaliciousHeads.XEnemy
                 string randomPlayerSteamID = GetRandomPlayerSteamID();
                 if (GameManager.Multiplayer())
                 {
-                    photonView.RPC("SetupRPC", RpcTarget.OthersBuffered, randomPlayerSteamID, Settings.HoldThreshold.Value);
+                    photonView.RPC("SetupRPC", RpcTarget.OthersBuffered, randomPlayerSteamID, Settings.HoldThreshold.Value, Settings.FlashEyesOnPickUp.Value, Settings.FlashEyesOnDetonate.Value);
                 }
-                SetupDone(randomPlayerSteamID, holdThreshold);
+                SetupDone(randomPlayerSteamID, holdThreshold, eyeFlashOnPickup, eyeFlashOnDetonate);
                 if (SemiFunc.RunIsArena())
                 {
                     physGrabObject.impactDetector.destroyDisable = false;
@@ -295,13 +308,13 @@ namespace MaliciousHeads.XEnemy
         }
 
         [PunRPC]
-        public void SetupRPC(string steamID, float holdThreshold)
+        public void SetupRPC(string steamID, float holdThreshold, bool flashOnPickup, bool flashOnDetonate)
         {
             MaliciousHeads.Logger.LogDebug($"[RPC] SetupRPC called with parameter steamID: {steamID}");
-            StartCoroutine(Wrap(SetupClient(steamID, holdThreshold)));
+            StartCoroutine(Wrap(SetupClient(steamID, holdThreshold, flashOnPickup, flashOnDetonate)));
         }
 
-        private IEnumerator SetupClient(string steamID, float holdThreshold)
+        private IEnumerator SetupClient(string steamID, float holdThreshold, bool flashOnPickup, bool flashOnDetonate)
         {
             while (!physGrabObject)
             {
@@ -319,7 +332,7 @@ namespace MaliciousHeads.XEnemy
                 yield return new WaitForSeconds(0.1f);
             }
             MaliciousHeads.Logger.LogDebug($"SetupClient finished: {steamID}");
-            SetupDone(steamID, holdThreshold);
+            SetupDone(steamID, holdThreshold, flashOnPickup, flashOnDetonate);
         }
 
         private string GetRandomPlayerSteamID()
@@ -328,9 +341,12 @@ namespace MaliciousHeads.XEnemy
             return SemiFunc.PlayerGetSteamID(player);
         }
 
-        private void SetupDone(string steamID, float holdThreshold)
+        private void SetupDone(string steamID, float holdThreshold, bool flashOnPickup, bool flashOnDetonate)
         {
             this.holdThreshold = holdThreshold;
+            this.eyeFlashOnPickup = flashOnPickup;
+            this.eyeFlashOnDetonate = flashOnDetonate;
+
             if (steamID == null)
             {
                 Debug.LogError("Failed to set Malicious Head color");

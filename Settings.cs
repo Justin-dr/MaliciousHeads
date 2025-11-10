@@ -7,6 +7,8 @@ namespace MaliciousHeads
         public static ConfigEntry<byte> MaxHeadSpawnsPerLevel { get; private set; }
         public static ConfigEntry<byte> SpawnChanceOnPlayeDeath { get; private set; }
         public static ConfigEntry<float> HoldThreshold { get; private set; }
+        public static ConfigEntry<bool> FlashEyesOnPickUp { get; private set; }
+        public static ConfigEntry<bool> FlashEyesOnDetonate { get; private set; }
         public static void Initialize(ConfigFile config)
         {
             MaxHeadSpawnsPerLevel = config.Bind<byte>(
@@ -34,6 +36,22 @@ namespace MaliciousHeads
                 new ConfigDescription(
                 "Maximum time to hold until self-destruct",
                 new AcceptableValueRange<float>(0f, 60f)
+                ));
+
+            FlashEyesOnPickUp = config.Bind<bool>(
+                "Heads",
+                "Pickup - Flash Eyes",
+                true,
+                new ConfigDescription(
+                "If true, the eyes of the Malicious Head will briefly flash red when picking it up"
+                ));
+
+            FlashEyesOnDetonate = config.Bind<bool>(
+                "Heads",
+                "Detonate - Flash Eyes",
+                true,
+                new ConfigDescription(
+                "If true, the eyes of the Malicious Head will briefly flash red when killing a player"
                 ));
         }
     }

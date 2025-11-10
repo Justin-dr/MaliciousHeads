@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MaliciousHeads;
 
-[BepInPlugin("Xepos.MaliciousHeads", "MaliciousHeads", "0.1.3")]
+[BepInPlugin("Xepos.MaliciousHeads", "MaliciousHeads", "0.1.5")]
 [BepInDependency(REPOLib.MyPluginInfo.PLUGIN_GUID, BepInDependency.DependencyFlags.HardDependency)]
 public class MaliciousHeads : BaseUnityPlugin
 {

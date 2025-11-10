@@ -1,9 +1,8 @@
 ﻿using HarmonyLib;
 using MaliciousHeads.Manager;
 using UnityEngine;
-using System.Collections.Generic;
-using System.Text;
 using MaliciousHeads.Util;
+using System.Linq;
 
 namespace MaliciousHeads.Patch
 {
@@ -32,11 +31,14 @@ namespace MaliciousHeads.Patch
                 }
             }
 
-            bool canSpawn = enemyManager.SpawnedHeads < Settings.MaxHeadSpawnsPerLevel.Value && Random.Range(0, 100) < Settings.SpawnChanceOnPlayeDeath.Value;
-            if (canSpawn && REPOLib.Modules.Enemies.TryGetEnemyByName("Malicious Head", out EnemySetup? setup))
+            if (enemyManager.SpawnedHeads < Settings.MaxHeadSpawnsPerLevel.Value && Random.Range(0, 100) < Settings.SpawnChanceOnPlayeDeath.Value)
             {
-                REPOLibUtils.SpawnEnemyNowInVanillaManner(setup);
-                enemyManager.SpawnedHeads++;
+                EnemySetup? setup = REPOLib.Modules.Enemies.RegisteredEnemies.Where(enemySetup => enemySetup.name == "Enemy - Malicious Head").FirstOrDefault();
+                if (setup)
+                {
+                    REPOLibUtils.SpawnEnemyNowInVanillaManner(setup);
+                    enemyManager.SpawnedHeads++;
+                }
             }
         }
 
@@ -44,7 +46,7 @@ namespace MaliciousHeads.Patch
         {
             foreach (var item in enemySetup.spawnObjects)
             {
-                if (item.TryGetComponent(out EnemyParent enemyParent))
+                if (item.Prefab.TryGetComponent(out EnemyParent enemyParent))
                 {
                     return enemyParent;
                 }
